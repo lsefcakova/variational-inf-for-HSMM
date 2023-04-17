@@ -43,7 +43,7 @@ class VBHMM(VariationalHMMBase):
     """
 
     def __init__(self, obs, prior_init, prior_tran, prior_emit, mask=None,
-                 init_init=None, init_tran=None, epsilon=1e-8, maxit=100,
+                 init_init=None, init_tran=None, epsilon=1e-10, maxit=1000,
                  verbose=False, sts=None):
         """
             obs : T x D np array of the observations in D dimensions (Can
@@ -146,7 +146,9 @@ class VBHMM(VariationalHMMBase):
                 print("iter: %d, ELBO: %.2f" % (it, lb))
                 sys.stdout.flush()
 
-            if np.allclose(lb, self.elbo, atol=epsilon):
+# chganged this from the initial formulation which used atol (early termination of algorithm before convergence)
+            if np.allclose(lb, self.elbo, rtol=epsilon):
+                print('terminated early - convergence')
                 break
             else:
                 self.elbo = lb

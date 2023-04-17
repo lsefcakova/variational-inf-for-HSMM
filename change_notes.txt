@@ -1,0 +1,6 @@
+This is a personal log of changes done to the original code set fo clarity and future work:
+
+hmmbatchcd : changed the np.allclose() atol --> rtol (algorithm was terminating early resulting in )bad performance when convergence was slow in the first 10 steps (solves instability issues and allows for >500 iterations)
+
+test_hmmbatchcd : changed data generating parameters during testing (no reason might change again)
+

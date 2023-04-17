@@ -39,7 +39,7 @@ def test_hmmbatchcd():
     
     mu_0 = np.zeros(D)
     sigma_0 = 0.75*np.cov(obs.T)
-    kappa_0 = 0.01
+    kappa_0 = 0.1
     nu_0 = 4
 
     prior_emit = [Gaussian(mu_0=mu_0, sigma_0=sigma_0, kappa_0=kappa_0, 
@@ -48,7 +48,7 @@ def test_hmmbatchcd():
     prior_tran = np.ones(K*K).reshape((K,K))
     prior_init = np.ones(K)
 
-    hmm = HMM.VBHMM(obs, prior_init, prior_tran, prior_emit)
+    hmm = HMM.VBHMM(obs, prior_init, prior_tran, prior_emit, maxit = 10**5)
     hmm.infer()
 
     sts_true = np.array([int(np.round(i/N)) for i in range(N)])

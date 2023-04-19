@@ -4,3 +4,4 @@ hmmbatchcd : changed the np.allclose() atol --> rtol (algorithm was terminating 
 
 test_hmmbatchcd : changed data generating parameters during testing (no reason might change again)
 
+test_hmmbatchsgd : modified sgd procedure, now using the pybasicbayes Gaussian method instead of util functions

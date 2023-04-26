@@ -177,7 +177,9 @@ class VBHMM(VariationalHMMBase):
                 print("iter: %d, ELBO: %.2f" % (it, lb))
                 sys.stdout.flush()
 
-            if False:  # np.allclose(lb, self.elbo, atol=epsilon):
+            #if False:  # np.allclose(lb, self.elbo, atol=epsilon):
+            if np.allclose(lb, self.elbo, rtol=epsilon):
+                print('terminated early - convergence')
                 break
             else:
                 self.elbo = lb

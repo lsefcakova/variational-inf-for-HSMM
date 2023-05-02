@@ -147,8 +147,9 @@ class VBHMM(VariationalHMMBase):
                 sys.stdout.flush()
 
 # chganged this from the initial formulation which used atol (early termination of algorithm before convergence)
-            if np.allclose(lb, self.elbo, rtol=epsilon):
-                print('terminated early - convergence')
+            if (lb - self.elbo) <= epsilon : #np.allclose(lb, self.elbo, rtol=epsilon):
+                print(f'terminated early - convergence, \n elbo : {self.elbo} \n lower bound : {lb}', )
+                print(f'allclose  = {np.allclose(lb, self.elbo, rtol=epsilon)}, diff : {self.elbo - lb}')
                 break
             else:
                 self.elbo = lb

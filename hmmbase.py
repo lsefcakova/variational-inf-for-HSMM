@@ -209,22 +209,27 @@ class VariationalHMMBase(object, metaclass=abc.ABCMeta):
         if mask is None:
             mask = self.mask
 
-        self.mod_init = digamma(self.var_init + eps) - digamma(np.sum(self.var_init) + eps)
+        self.mod_init = digamma(self.var_init + eps) - digamma(np.sum(self.var_init) + eps) # ??
         tran_sum = np.sum(self.var_tran, axis=1)
-        self.mod_tran = digamma(self.var_tran + eps) - digamma(tran_sum[:,npa] + eps)
+        self.mod_tran = digamma(self.var_tran + eps) - digamma(tran_sum[:,npa] + eps) #11?
 
         # Compute likelihoods
         for k, odist in enumerate(self.var_emit):
             self.lliks[:,k] = np.nan_to_num(odist.expected_log_likelihood(obs))
 
         # update forward, backward and scale coefficient tables
-        self.forward_msgs()
-        self.backward_msgs()
+        self.forward_msgs() #12 done in log 
+        self.backward_msgs() #13 done in log
 
-        self.var_x = self.lalpha + self.lbeta
-        self.var_x -= np.max(self.var_x, axis=1)[:,npa]
+        self.var_x = self.lalpha + self.lbeta #14 in log self.var_x = q*(x_t=k)
+        self.var_x -= np.max(self.var_x, axis=1)[:,npa] 
+        #why do we substract the max value? is this step 15??
+
         self.var_x = np.exp(self.var_x)
+        # exit log and convert to normal exponential value for normalization in line down
+
         self.var_x /= np.sum(self.var_x, axis=1)[:,npa]
+        # normalizing step
 
     def FFBS(self, var_init):
         """ Forward Filter Backward Sampling to simulate state sequence.
@@ -287,7 +292,7 @@ class VariationalHMMBase(object, metaclass=abc.ABCMeta):
 
         lalpha = self.lalpha
 
-        lalpha[0,:] = self.mod_init + ll[0,:]
+        lalpha[0,:] = self.mod_init + ll[0,:] #log alpha
 
         for t in range(1,self.T):
             lalpha[t] = np.logaddexp.reduce(lalpha[t-1] + ltran.T, axis=1) + ll[t]
@@ -311,7 +316,7 @@ class VariationalHMMBase(object, metaclass=abc.ABCMeta):
         ll = self.lliks
 
         lbeta = self.lbeta
-        lbeta[self.T-1,:] = 0.
+        lbeta[self.T-1,:] = 0. #log of 1 
 
         for t in range(self.T-2,-1,-1):
             np.logaddexp.reduce(ltran + lbeta[t+1] + ll[t+1], axis=1,

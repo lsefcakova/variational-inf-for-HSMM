@@ -227,6 +227,8 @@ class VariationalHMMBase(object, metaclass=abc.ABCMeta):
 
         self.var_x = np.exp(self.var_x)
         # exit log and convert to normal exponential value for normalization in line down
+        # we will take the outer product to compute the probabilities kj in the global update 
+        # that will update the transitions parameters 
 
         self.var_x /= np.sum(self.var_x, axis=1)[:,npa]
         # normalizing step

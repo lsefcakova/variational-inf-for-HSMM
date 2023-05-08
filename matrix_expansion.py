@@ -19,7 +19,6 @@ def h_j_pois(r : float, lambda_j: float):
     else:
         return h.pmf(k=r)/(1-h.cdf(x=r-1))
 
-    
 def expand_matrix(T_hsmm, lambda_js_array , a_js_array):
     '''
     This function takes a valid transition 
@@ -36,7 +35,7 @@ def expand_matrix(T_hsmm, lambda_js_array , a_js_array):
     for state in range(T_hsmm.shape[1]):
         # build h vector
         h_j_vec = np.asarray([h_j_pois(r , lambda_js_array[state]) for r in range(1,a_js_array[state]+1)])
-        print(f'the 1- h vector is : {1 - h_j_vec}')
+        # print(f'the 1- h vector is : {1 - h_j_vec}')
         # set diagonal matrix entries
         phi_jj = np.zeros((a_js_array[state],a_js_array[state]))
         np.fill_diagonal(phi_jj[:-1,1:], (1-h_j_vec[:-1])) #first to 2nd-to-last row and second to last column

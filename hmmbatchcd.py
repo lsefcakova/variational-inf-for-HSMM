@@ -131,7 +131,7 @@ class VBHMM(VariationalHMMBase):
         self.pred_logprob_std = np.nan*np.ones(maxit)
 
         self.iter_time = np.nan*np.ones(maxit)
-
+    
         for it in range(maxit):
 
             start_time = time.time()
@@ -147,7 +147,9 @@ class VBHMM(VariationalHMMBase):
                 sys.stdout.flush()
 
 # chganged this from the initial formulation which used atol (early termination of algorithm before convergence)
-            if (lb - self.elbo) <= epsilon : #np.allclose(lb, self.elbo, rtol=epsilon):
+            
+            if np.abs(lb - self.elbo) <= epsilon : #np.allclose(lb, self.elbo, rtol=epsilon):
+                print(np.abs(lb - self.elbo) <= epsilon)
                 print(f'terminated early - convergence, \n elbo : {self.elbo} \n lower bound : {lb}', )
                 print(f'allclose  = {np.allclose(lb, self.elbo, rtol=epsilon)}, diff : {self.elbo - lb}')
                 break
@@ -184,7 +186,12 @@ class VBHMM(VariationalHMMBase):
         # Transition parameter updates
         self.var_tran = self.prior_tran.copy()
         for t in range(1, self.T):
-            self.var_tran += np.outer(self.var_x[t-1,:], self.var_x[t,:])
+            self.var_tran += np.outer(self.var_x[t-1,:], self.var_x[t,:]) # eq 15 from local 
+            # update ( only used when computing the transition probabilities ) big (7) 
+            # hyperparams dirichle row (alphas) + the quantities expe vale by takignthe first
+            # sum in the eqs and they do one by the other one instead of ding the actual joint 
+
+            
 
         # Emission parameter updates
         inds = np.logical_not(self.mask)

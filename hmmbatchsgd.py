@@ -63,7 +63,7 @@ class VBHMM(VariationalHMMBase):
 
     def __init__(self, obs, prior_init, prior_tran, prior_emit, tau=tau0,
                  kappa=kappa0, mask=None, init_init=None, init_tran=None,
-                 epsilon=1e-8, maxit=10, verbose=False, sts=None):
+                 epsilon=1e-8, maxit=10, batch_size=None, verbose=False, sts=None):
         """ This initializes the HMMSVI object. Assume we have K states and T
             observations
 
@@ -116,6 +116,7 @@ class VBHMM(VariationalHMMBase):
 
         self.epsilon = epsilon
         self.maxit = maxit
+        self.batch_size = batch_size
 
         # Factor to multiply natural gradient by so that it's unbiased.  This
         # will depend on the probability of selecting the minibatch and will be
@@ -148,7 +149,7 @@ class VBHMM(VariationalHMMBase):
         self.obs_full = self.obs.copy()
         self.obs[self.mask,:] = np.nan
 
-        epsilon = self.epsilon*1000
+        epsilon = self.epsilon
         maxit = self.maxit
 
         self.elbo_vec = np.inf*np.ones(maxit)
@@ -166,7 +167,7 @@ class VBHMM(VariationalHMMBase):
 
             self.local_update()
             #self.global_update()
-            self.global_update(batch_size = 500)
+            self.global_update()
 			
             self.iter_time[it] = time.time() - start_time
 
@@ -203,11 +204,12 @@ class VBHMM(VariationalHMMBase):
 
         self.obs = self.obs_full
 
-    def global_update(self, batch_size=None):
+    def global_update(self):
         """ Perform global updates based on batch following the stochastic
             natural gradient.
         """
-
+        
+        batch_size = self.batch_size
         if batch_size is None:
             batch = self.obs
             mask = self.mask

@@ -69,7 +69,7 @@ def test_hmmbatchsgd():
 
     # define object for inferrence from hmmbatchcd.py
     # pass priors on init transitions and emissions for each state
-    hmm = HMM.VBHMM(obs, prior_init, prior_tran, prior_emit, maxit=1000, epsilon=10**(-8))  
+    hmm = HMM.VBHMM(obs, prior_init, prior_tran, prior_emit, maxit=200, epsilon=10**(-8), batch_size=256)  
     hmm.infer() # do inference 
     sts_true = seq # true states 
     # hamming distance

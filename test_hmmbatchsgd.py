@@ -16,7 +16,7 @@ def test_hmmbatchsgd():
 
     K = 2
     D = 2
-    kappa_0 = 1
+    kappa_0 = 10
     nu_0 = 4
 
     emit1 = Gaussian(mu=np.array([0,0]),
@@ -33,13 +33,13 @@ def test_hmmbatchsgd():
                      nu_0=nu_0)
     emit = np.array([emit1, emit2])
 
-    N = 1000
+    N = 2000
     obs = np.array([emit[int(np.round(i/N))].rvs()[0]
                     for i in range(N)])
     
     mu_0 = np.zeros(D)
     sigma_0 = 0.75*np.cov(obs.T)
-    kappa_0 = 0.1 #0.01
+    kappa_0 = 2 #0.1 #0.01
     nu_0 = 4
 
     prior_emit = [Gaussian(mu_0=mu_0, sigma_0=sigma_0, kappa_0=kappa_0, 
@@ -48,7 +48,7 @@ def test_hmmbatchsgd():
     prior_tran = np.ones(K*K).reshape((K,K))
     prior_init = np.ones(K)
 
-    hmm = HMM.VBHMM(obs, prior_init, prior_tran, prior_emit, maxit = 10**5)
+    hmm = HMM.VBHMM(obs, prior_init, prior_tran, prior_emit, maxit = 100)
     # 'Gaussian' object has no attribute '_posterior_hypparams'
     hmm.infer()
 

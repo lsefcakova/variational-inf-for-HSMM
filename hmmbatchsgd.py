@@ -63,7 +63,7 @@ class VBHMM(VariationalHMMBase):
 
     def __init__(self, obs, prior_init, prior_tran, prior_emit, tau=tau0,
                  kappa=kappa0, mask=None, init_init=None, init_tran=None,
-                 epsilon=1e-8, maxit=100, verbose=False, sts=None):
+                 epsilon=1e-8, maxit=10, verbose=False, sts=None):
         """ This initializes the HMMSVI object. Assume we have K states and T
             observations
 
@@ -148,7 +148,7 @@ class VBHMM(VariationalHMMBase):
         self.obs_full = self.obs.copy()
         self.obs[self.mask,:] = np.nan
 
-        epsilon = self.epsilon
+        epsilon = self.epsilon*1000
         maxit = self.maxit
 
         self.elbo_vec = np.inf*np.ones(maxit)
@@ -158,15 +158,16 @@ class VBHMM(VariationalHMMBase):
         self.iter_time = np.nan*np.ones(maxit)
 
         for it in range(maxit):
-            
+			
             start_time = time.time()
 
             # (t + tau)^{-kappa}
             self.lrate = (it + self.tau)**(-self.kappa)
 
             self.local_update()
-            self.global_update()
-
+            #self.global_update()
+            self.global_update(batch_size = 500)
+			
             self.iter_time[it] = time.time() - start_time
 
             # Keep getting matrix not positive definite in lower_bound
@@ -176,10 +177,11 @@ class VBHMM(VariationalHMMBase):
             if self.verbose:
                 print("iter: %d, ELBO: %.2f" % (it, lb))
                 sys.stdout.flush()
-
-            #if False:  # np.allclose(lb, self.elbo, atol=epsilon):
-            if np.allclose(lb, self.elbo, rtol=epsilon):
-                print('terminated early - convergence')
+			
+            if np.abs(lb - self.elbo) <= epsilon : #np.allclose(lb, self.elbo, rtol=epsilon):
+                print(np.abs(lb - self.elbo) <= epsilon)
+                print(f'terminated early - convergence, \n elbo : {self.elbo} \n lower bound : {lb}', )
+                print(f'allclose  = {np.allclose(lb, self.elbo, rtol=epsilon)}, diff : {self.elbo - lb}')
                 break
             else:
                 self.elbo = lb
@@ -201,13 +203,40 @@ class VBHMM(VariationalHMMBase):
 
         self.obs = self.obs_full
 
-    def global_update(self, batch=None):
+    def global_update(self, batch_size=None):
         """ Perform global updates based on batch following the stochastic
             natural gradient.
         """
 
-        if batch is None:
+        if batch_size is None:
             batch = self.obs
+            mask = self.mask
+            
+            inds = np.logical_not(mask)
+        else:
+            #batch_indices = np.random.choice(len(self.obs), size=batch, replace=False)
+            #batch = self.obs
+            #batch = self.obs[batch_indices]
+            
+            # calculate the maximum possible starting index that allows for a complete sequence
+            max_start_index = len(self.obs) - batch_size
+
+            # choose the starting index randomly from the range [0, max_start_index]
+            start_index = np.random.randint(0, max_start_index)
+
+            # create a sequence of indices starting from the randomly chosen index
+            indices = [start_index]
+            for i in range(1, batch_size):
+                index = start_index + i
+                indices.append(index)
+
+            # convert the list of indices to a numpy array
+            batch_indices = np.array(indices)
+            
+            batch = self.obs
+            inds = batch_indices
+            #uncomment for random choice
+            #inds = np.random.choice(len(self.obs), size=batch_size, replace=False)
 
         lrate = self.lrate
         #batchfactor = self.batchfactor
@@ -237,7 +266,7 @@ class VBHMM(VariationalHMMBase):
         self.var_tran = nats_new + 1.
 
         # Emission distributions
-        inds = np.logical_not(self.mask)
+        #inds = np.logical_not(self.mask)
         for k in range(self.K):
             G = self.var_emit[k]
             
@@ -248,7 +277,7 @@ class VBHMM(VariationalHMMBase):
             #        util.NIW_meanfield(G, batch[inds,:], self.var_x[inds,k])
             
             G.meanfieldupdate(batch[inds,:], self.var_x[inds,k])
-            
+
             #nats_t = np.array([mu_mf, sigma_mf, kappa_mf, nu_mf])
 			
             # Convert to natural parameters
@@ -266,7 +295,7 @@ class VBHMM(VariationalHMMBase):
             #print("--------")
             #G.natural_hypparam=nats_new
             
-            G.meanfield_sgdstep(batch[inds,:], self.var_x[inds,k],0.7,lrate*100)
+            G.meanfield_sgdstep(batch[inds,:], self.var_x[inds,k],1,lrate)
             
             # Convert new params into moment form and store back in G
             #util.NIW_mf_moment_pars(G, *nats_new)

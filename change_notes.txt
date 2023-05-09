@@ -5,3 +5,15 @@ hmmbatchcd : changed the np.allclose() atol --> rtol (algorithm was terminating 
 test_hmmbatchcd : changed data generating parameters during testing (no reason might change again)
 
 test_hmmbatchsgd : modified sgd procedure, now using the pybasicbayes Gaussian method instead of util functions
+
+experiments.ipynb : for initialization of priors set kappa_0 = 10 (high value) after implementing KMeans clustering for init mf_0 for known K  🚨🚨CONSULT IF IT IS CORRECT (VALID)🚨🚨
+
+TO DO:
+1. 	a) read sections 3,4 of supplementary 
+	b) write them down for HSMM
+2. 	a) write up in LaTeX what Benni wrote (notes) - use ‘a’ for dirichlet, alpha for FB pass
+3.	plot covariances
+4.	Add init with K-means clustering for stability  ✅
+	b) David - change initialization of kappa_0 on emmisions in SGD testing to see if stability improves 
+
+

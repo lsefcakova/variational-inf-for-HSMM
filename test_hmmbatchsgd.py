@@ -15,7 +15,7 @@ from generate_data import *
 from sklearn.cluster import KMeans
 
 
-def test_hmmbatchsgd():
+def test_hmmbatchsgd(maxit=200, epsilon=10**(-8), batch_size=256):
     """
     """
 
@@ -69,7 +69,7 @@ def test_hmmbatchsgd():
 
     # define object for inferrence from hmmbatchcd.py
     # pass priors on init transitions and emissions for each state
-    hmm = HMM.VBHMM(obs, prior_init, prior_tran, prior_emit, maxit=200, epsilon=10**(-8), batch_size=256)  
+    hmm = HMM.VBHMM(obs, prior_init, prior_tran, prior_emit, maxit=maxit, epsilon=epsilon, batch_size=batch_size)  
     hmm.infer() # do inference 
     sts_true = seq # true states 
     # hamming distance

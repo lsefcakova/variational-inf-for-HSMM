@@ -278,7 +278,7 @@ class VBHMM(VariationalHMMBase):
             #mu_mf, sigma_mf, kappa_mf, nu_mf = \
             #        util.NIW_meanfield(G, batch[inds,:], self.var_x[inds,k])
             
-            G.meanfieldupdate(batch[inds,:], self.var_x[inds,k])
+            #G.meanfieldupdate(batch[inds,:], self.var_x[inds,k])
 
             #nats_t = np.array([mu_mf, sigma_mf, kappa_mf, nu_mf])
 			
@@ -296,8 +296,8 @@ class VBHMM(VariationalHMMBase):
             #print(nats_new) ##works!! does it even mean anything?
             #print("--------")
             #G.natural_hypparam=nats_new
-            
-            G.meanfield_sgdstep(batch[inds,:], self.var_x[inds,k],1,lrate)
+
+            G.meanfield_sgdstep(batch[inds,:], self.var_x[inds,k], batch_size/len(self.obs), lrate)
             
             # Convert new params into moment form and store back in G
             #util.NIW_mf_moment_pars(G, *nats_new)

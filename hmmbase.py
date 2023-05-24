@@ -288,13 +288,13 @@ class VariationalHMMBase(object, metaclass=abc.ABCMeta):
             obs = self.obs
         if mask is None:
             mask = self.mask
-
+            
         ltran = self.mod_tran
         ll = self.lliks
 
         lalpha = self.lalpha
 
-        lalpha[0,:] = self.mod_init + ll[0,:] #log alpha
+        lalpha[0,:] = self.mod_init + ll[0,:] #log alpha ll-> pi from tutorial.pdf
 
         for t in range(1,self.T):
             lalpha[t] = np.logaddexp.reduce(lalpha[t-1] + ltran.T, axis=1) + ll[t]

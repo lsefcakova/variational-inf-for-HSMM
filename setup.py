@@ -14,7 +14,7 @@ ext_names = ["hmm_fast", "fdr"]
 
 # Make a `cleanall` rule to get rid of intermediate and library files
 if "cleanall" in args:
-    print "Deleting cython files..."
+    print("Deleting cython files...")
     # Note that shell=True should be OK because the command is constant.
     # Just in case the build directory was created by accident, delete it
     for ext_name in ext_names:

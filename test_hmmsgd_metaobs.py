@@ -16,7 +16,7 @@ from generate_data import *
 from sklearn.cluster import KMeans
 
 
-def test_hmmsgd_metaobs():
+def test_hmmsgd_metaobs(maxit=200, metaobs_half=256, mb_sz=1):
     """
     """
 
@@ -67,11 +67,9 @@ def test_hmmsgd_metaobs():
     prior_emit = np.array(prior_emit)           # prior on emissions retype
     prior_tran = np.ones(K*K).reshape((K,K))    # prior on transition matrix all 1
     prior_init = np.ones(K)
+
     
-    L=10
-    print(2*L+1)
-    
-    hmm = HMM.VBHMM(obs, prior_init, prior_tran, prior_emit,metaobs_half=L, mb_sz=1)
+    hmm = HMM.VBHMM(obs, prior_init, prior_tran, prior_emit, maxit=maxit, metaobs_half=metaobs_half, mb_sz=mb_sz)
     hmm.infer()
     full_var_x = hmm.full_local_update()
 

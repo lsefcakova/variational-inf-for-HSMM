@@ -255,7 +255,7 @@ class VBHMM(VariationalHMMBase):
 
             c_vec[i] = c
             minibatch.append(MetaObs(c-L,c+L))
-
+            
         return minibatch
 
     def local_lower_bound(self):

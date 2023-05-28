@@ -383,4 +383,22 @@ class VariationalHSMMBase(object, metaclass=abc.ABCMeta):
             logprob[:,k] = np.log(self.var_x[mask,k]+eps) + odist.expected_log_likelihood(obs[mask,:])
 
         return np.mean(np.logaddexp.reduce(logprob, axis=1))
+        
+    def hamming_dist(self, full_var_x, true_sts):
+        """ This function returns the hamming distance between the full
+            variational distribution on the states, and the true state
+            sequence, after matching via the munkres algorithm
+            
+            full_var_x: variational distribution of state sequence.  Generate
+                        it with self.full_local_update().
+
+            true_sts: true state sequence
+
+            Returns float with hamming distance and best permutation to match
+            the states.
+        """
+
+        state_sq = np.argmax(full_var_x, axis=1).astype(int) #these are learned states
+        best_match = util.munkres_match(true_sts, state_sq, self.K)
+        return dist.hamming(true_sts, best_match[state_sq]), best_match
 

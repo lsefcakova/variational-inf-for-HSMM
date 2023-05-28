@@ -1,4 +1,4 @@
-# hsmmbase.py
+# hmmbase.py
 import abc
 import types
 
@@ -125,10 +125,10 @@ class VariationalHSMMBase(object, metaclass=abc.ABCMeta):
 
         # Initialize global variational distributions over the extended state space 
 
-        intermediate_mat = prior_A 
-        np.fill_diagonal(intermediate_mat, 0)
-        intermediate_mat = intermediate_mat / np.sum(intermediate_mat, axis=1)[:,np.newaxis]
-        self.var_B =  expand_matrix(intermediate_mat,self.lambda_js,self.m_js)
+        # intermediate_mat = prior_A 
+        # np.fill_diagonal(intermediate_mat, 0)
+        # intermediate_mat = intermediate_mat / np.sum(intermediate_mat, axis=1)[:,np.newaxis]
+        # self.var_B =  expand_matrix(intermediate_mat,self.lambda_js,self.m_js)
 
         self.var_pi0_ext = np.ones(self.M)/self.M
         self.prior_pi0_ext = np.ones(self.M)
@@ -194,7 +194,7 @@ class VariationalHSMMBase(object, metaclass=abc.ABCMeta):
         #lZ = -np.sum(np.log(self.c_table + eps))
 
         # We don't need the minus anymore b/c this is 1/ctable
-        lZ = np.sum(np.logaddexp.reduce(self.lalpha, axis=1))
+        lZ = np.sum(np.logaddexp.reduce(self.lalpha_tilde, axis=1))
 
         elbo = (pi_energy + pi_entropy + A_energy + A_entropy
                 + emit_vlb + lZ)
@@ -217,18 +217,18 @@ class VariationalHSMMBase(object, metaclass=abc.ABCMeta):
 
 # this is a sequence of a,b a,b equations pairs going from hmm to extended hsmm formulation       # 
 ###
-        self.pi_tilde = digamma(self.var_pi0 + eps) - digamma(np.sum(self.var_pi0) + eps) # ??
+        # self.pi_tilde = digamma(self.var_pi0 + eps) - digamma(np.sum(self.var_pi0) + eps) # ??
         tran_sum = np.sum(self.var_A, axis=1)
 
         self.pi_tilde_ext = digamma(self.var_pi0_ext + eps) - digamma(np.sum(self.var_pi0_ext) + eps) # ??
-        tran_sum_ext = np.sum(self.var_B, axis=1)
+        # tran_sum_ext = np.sum(self.var_B, axis=1)
 ###
 ###
         self.A_tilde = digamma(self.var_A + eps) - digamma(tran_sum[:,npa] + eps) #11?
         inter_matrix = self.A_tilde
         np.fill_diagonal(inter_matrix,0)
         self.B_tilde = expand_matrix(inter_matrix,self.lambda_js,self.m_js)
-        np.fill_diagonal(self.B_tilde,np.diagonal(self.var_B))
+        # np.fill_diagonal(self.B_tilde,np.diagonal(self.var_B))
 ###
         # Compute log-likelihoods (only in hsmm space)
         for k, odist in enumerate(self.var_emit):
@@ -239,28 +239,26 @@ class VariationalHSMMBase(object, metaclass=abc.ABCMeta):
         self.backward_msgs() #13 done in log
 
 ###
-        self.var_x = self.lalpha + self.lbeta #14 in log self.var_x = q*(x_t=k)
+        # self.var_x = self.lalpha + self.lbeta #14 in log self.var_x = q*(x_t=k)
         self.var_x_ext = self.lalpha_tilde + self.lbeta_tilde
 ###
 ###
-        self.var_x -= np.max(self.var_x, axis=1)[:,npa] 
+        # self.var_x -= np.max(self.var_x, axis=1)[:,npa] 
         self.var_x_ext -= np.max(self.var_x_ext, axis=1)[:,npa] 
 ###
         #why do we substract the max value? is this step 15??
 ###
-        self.var_x = np.exp(self.var_x)
+        # self.var_x = np.exp(self.var_x)
         self.var_x_ext = np.exp(self.var_x_ext)
 ###
         # exit log and convert to normal exponential value for normalization in line down
         # we will take the outer product to compute the probabilities kj in the global update 
         # that will update the transitions parameters 
 ###
-        self.var_x /= np.sum(self.var_x, axis=1)[:,npa]
+        # self.var_x /= np.sum(self.var_x, axis=1)[:,npa]
         self.var_x_ext /= np.sum(self.var_x_ext, axis=1)[:,npa]
 ###     
-        print('var_x',self.var_x[1])
-        print('var_x_ext',self.var_x_ext[1])
-##########################
+
         for i in range(len(self.m_js)):
             for k in range(self.K):
                 if k == 0:
@@ -268,15 +266,10 @@ class VariationalHSMMBase(object, metaclass=abc.ABCMeta):
                 else:
                     ind_u = np.sum(self.m_js[:k+1])
                     ind_l = ind_u - self.m_js[k]
-                    print('upper:',ind_u)
-                    print('lowe',ind_l)
                     self.var_x[:,k] = np.sum(self.var_x_ext[:,ind_l:ind_u],axis=1)
 
 
-############################
-
         self.var_x /= np.sum(self.var_x, axis=1)[:,npa]
-        print('var_x after transform',self.var_x[1])
 
         # normalizing step
 
@@ -302,7 +295,7 @@ class VariationalHSMMBase(object, metaclass=abc.ABCMeta):
         if mask is None:
             mask = self.mask
 ###            
-        ltran = self.A_tilde
+        # ltran = self.A_tilde
         ltran_ext = self.B_tilde
 ###
 ###
@@ -315,17 +308,17 @@ class VariationalHSMMBase(object, metaclass=abc.ABCMeta):
             ll_ext[i,:] = np.array(row_i)
 ###
 ###
-        lalpha = self.lalpha
+        # lalpha = self.lalpha
         lalpha_tilde = self.lalpha_tilde
 ###
 ###
-        lalpha[0,:] = self.pi_tilde + ll[0,:] #log alpha ll-> pi from tutorial.pdf
+        # lalpha[0,:] = self.pi_tilde + ll[0,:] #log alpha ll-> pi from tutorial.pdf
         lalpha_tilde[0,:] = self.pi_tilde_ext + ll_ext[0,:] 
 ###
 ###
         for t in range(1,self.T):
-            lalpha[t] = np.logaddexp.reduce(lalpha[t-1] + ltran.T, axis=1) + ll[t]
-            lalpha_tilde[t] = np.logaddexp.reduce(lalpha_tilde[t-1] + ltran_ext.T, axis=1) + ll_ext[t]
+            # self.lalpha[t] = np.logaddexp.reduce(lalpha[t-1] + ltran.T, axis=1) + ll[t]
+            self.lalpha_tilde[t] = np.logaddexp.reduce(lalpha_tilde[t-1] + ltran_ext.T, axis=1) + ll_ext[t]
 
     def backward_msgs(self, obs=None, mask=None):
         """ Creates a beta table (matrix) where
@@ -343,7 +336,7 @@ class VariationalHSMMBase(object, metaclass=abc.ABCMeta):
             mask = self.mask
 
 ###            
-        ltran = self.A_tilde
+        # ltran = self.A_tilde
         ltran_ext = self.B_tilde
 ###
 ###
@@ -356,19 +349,19 @@ class VariationalHSMMBase(object, metaclass=abc.ABCMeta):
             ll_ext[i,:] = np.array(row_i)
 ###
 ###
-        lbeta = self.lbeta
+        # lbeta = self.lbeta
         lbeta_tilde = self.lbeta_tilde
 ###
 ###
-        lbeta[self.T-1,:] = 0. #log of 1 
-        lbeta_tilde[self.T-1,:] = 0. #log of 1 
+        # lbeta[self.T-1,:] = 0. #log of 1 
+        self.lbeta_tilde[self.T-1,:] = 0. #log of 1 
 ###
 ###
         for t in range(self.T-2,-1,-1):
-            np.logaddexp.reduce(ltran + lbeta[t+1] + ll[t+1], axis=1,
-                                out=lbeta[t])
+            # np.logaddexp.reduce(ltran + lbeta[t+1] + ll[t+1], axis=1,
+                                # out=self.lbeta[t])
             np.logaddexp.reduce(ltran_ext + lbeta_tilde[t+1] + ll_ext[t+1], axis=1,
-                                out=lbeta_tilde[t])
+                                out=self.lbeta_tilde[t])
 ###
 
     def pred_logprob(self):

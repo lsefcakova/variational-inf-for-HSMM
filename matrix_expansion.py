@@ -27,8 +27,8 @@ def expand_matrix(T_hsmm, lambda_js_array , a_js_array):
     # check validity
     if not np.all(np.diagonal(T_hsmm) == 0):
         raise ValueError('This matrix is not valid. The diagonal entries of transition matrix (T_hsmm) must be all equal to 0.')
-    elif not np.all(T_hsmm.sum(axis = 1) == 1):
-        raise ValueError('This matrix is not valid. The row sums of transition matrix (T_hsmm) must be equal to 1')
+    # elif not np.all(T_hsmm.sum(axis = 1) == 1):
+    #     raise ValueError('This matrix is not valid. The row sums of transition matrix (T_hsmm) must be equal to 1')
 
     T_expanded = np.zeros((sum(a_js_array),sum(a_js_array)))
     last_index = 0

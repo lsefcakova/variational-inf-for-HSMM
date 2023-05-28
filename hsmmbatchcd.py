@@ -1,6 +1,3 @@
-# hsmmbatchcd.py
-
-
 import sys
 import time
 import numpy as np
@@ -100,8 +97,8 @@ class VBHSMM(VariationalHSMMBase):
         #self.beta_table = np.zeros((self.T, self.K))
         #self.c_table = np.zeros(self.T)
 
-        self.lalpha = np.empty((self.T, self.K))
-        self.lbeta = np.empty((self.T, self.K))
+        # self.lalpha = np.empty((self.T, self.K))
+        # self.lbeta = np.empty((self.T, self.K))
         self.lliks = np.empty((self.T, self.K))
 
         self.lalpha_tilde = np.empty((self.T, self.M))
@@ -148,9 +145,7 @@ class VBHSMM(VariationalHSMMBase):
             start_time = time.time()
 
             self.local_update()
-            print('local done')
             self.global_update()
-            print('global done')
 
             self.iter_time[it] = time.time() - start_time
 
@@ -194,13 +189,20 @@ class VBHSMM(VariationalHSMMBase):
         """
 
         # Initial parameter update
-        self.var_pi0 = self.prior_pi0 + self.var_x[0,:]
+        # self.var_pi0 = self.prior_pi0 + self.var_x[0,:]
         self.var_pi0_ext = self.prior_pi0_ext + self.var_x_ext[0,:]
-
+        for i in range(len(self.m_js)):
+            for k in range(self.K):
+                if k == 0:
+                    self.var_pi0[k] = np.sum(self.var_pi0_ext[0:self.m_js[k]])
+                else:
+                    ind_u = np.sum(self.m_js[:k+1])
+                    ind_l = ind_u - self.m_js[k]
+                    self.var_pi0[k] = np.sum(self.var_pi0_ext[ind_l:ind_u])
+        
 
         # Transition parameter updates
         self.var_A = self.prior_A.copy()
-        self.var_B = expand_matrix(self.prior_A.copy(),self.lambda_js,self.m_js)
 
         for t in range(1, self.T):
             self.var_A += np.outer(self.var_x[t-1,:], self.var_x[t,:]) # eq 15 from local 
@@ -208,7 +210,8 @@ class VBHSMM(VariationalHSMMBase):
             # hyperparams dirichle row (alphas) + the quantities expe vale by takignthe first
             # sum in the eqs and they do one by the other one instead of ding the actual joint 
 
-        np.fill_diagonal(self.var_A,0)   
+        np.fill_diagonal(self.var_A,0)  #disregard all inter state transition indicators 
+
 
         # Emission parameter updates
         inds = np.logical_not(self.mask)

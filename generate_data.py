@@ -1,5 +1,6 @@
 import numpy as np 
 from pybasicbayes.distributions import Gaussian
+from scipy.stats import poisson
 
 '''
 functions to helpgenerate data using a transition matrix used for simulations
@@ -38,3 +39,29 @@ def make_emissions(centers: list , kappa_0: float, nu_0:float,sigmas = [np.eye(2
     return np.array(emits)
 
 
+def generate_states_pois(T: np.array,lambda_js: list , n_obs: int):
+
+    states = [i for i in range(1,T.shape[0]+1)]
+    # sample first beginning state
+    state_seq = [np.random.randint(1,states[-1]+1)]
+    end_of_dwell = False
+    while True:
+        # sample dwell time in last state 
+        if end_of_dwell == False:
+            d = poisson.rvs(lambda_js[state_seq[-1]-1])
+        else:
+            d=1
+        state_seq = state_seq + [state_seq[-1]]*(d-1)
+        state_seq.append(np.random.choice(states,p=T[state_seq[-1]-1]))
+        end_of_dwell = False
+        if state_seq[-1] == state_seq[-2]:
+            end_of_dwell = True
+
+
+        if len(state_seq) >= n_obs : 
+            state_seq = state_seq[:n_obs]
+            break
+    
+    ind_for_state_j = [np.where(np.asarray(state_seq)==j) for j in states]
+
+    return np.asarray(state_seq,dtype=int), ind_for_state_j

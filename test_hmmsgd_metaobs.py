@@ -68,16 +68,16 @@ def test_hmmsgd_metaobs():
     prior_tran = np.ones(K*K).reshape((K,K))    # prior on transition matrix all 1
     prior_init = np.ones(K)
     
-    L=1400
+    L=10
     print(2*L+1)
     
     hmm = HMM.VBHMM(obs, prior_init, prior_tran, prior_emit,metaobs_half=L, mb_sz=1)
     hmm.infer()
     full_var_x = hmm.full_local_update()
 
-    sts_true = np.array([int(np.round(i/N)) for i in range(N)])
+    #sts_true = np.array([int(np.round(i/N)) for i in range(N)])
     # hamming distance
-    print('Hamming Distance = ', hmm.hamming_dist(full_var_x, sts_true)[0])
+    print('Hamming Distance = ', hmm.hamming_dist(full_var_x, seq)[0])
 
     # plot learned emissions over observations
     util.plot_emissions(obs, prior_emit, hmm.var_emit)

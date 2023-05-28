@@ -83,7 +83,7 @@ def test_hsmmbatchcd():
     # plots mean_field values (prior in green, posterior approximations in red)
     # prior values are green
     # var_emit are red 
-    a = util.plot_emissions(obs_hsmm, prior_emit, hmm.var_emit)
+    a = util.plot_emissions(obs_hsmm, prior_emit, hsmm.var_emit)
     plt.show()
 
     # plot elbo over iterations
@@ -92,4 +92,4 @@ def test_hsmmbatchcd():
 
     
 if __name__ == '__main__':
-    test_hmmbatchcd()
+    test_hsmmbatchcd()

@@ -11,7 +11,15 @@ import scipy.spatial.distance as distance
 
 def NIW_zero_nat_pars(G):
     p = len(G.mu_mf)
-    return np.array([np.zeros(p), 0., np.zeros((p,p)), 0])
+    
+    result = np.empty(4, dtype=object)
+    result[0] = np.zeros(p)
+    result[1] = 0
+    result[2] = np.zeros((p,p))
+    result[3] = 0
+    
+    return result
+    #return list([np.zeros(p), 0., np.zeros((p,p)), 0])
 
 def NIW_nat2moment_pars(e1, e2, e3, e4):
     p = len(e1)
@@ -22,7 +30,15 @@ def NIW_nat2moment_pars(e1, e2, e3, e4):
     sigma = e3 - np.outer(mu, mu) / kappa
     #sigma = e3 - np.outer(mu, mu) * kappa
     nu = e4 - 2 - p
-    return np.array([mu, sigma, kappa, nu])
+    
+    result = np.empty(4, dtype=object)
+    result[0] = mu
+    result[1] = sigma
+    result[2] = kappa
+    result[3] = nu
+    
+    return result
+    #return np.array([mu, sigma, kappa, nu])
 
 
 def NIW_mf_natural_pars(mu, sigma, kappa, nu):
@@ -34,7 +50,14 @@ def NIW_mf_natural_pars(mu, sigma, kappa, nu):
     # actually stable.
     #eta3 = sigma + np.outer(mu, mu) / kappa
     eta3 = sigma + np.outer(mu, mu) * kappa
-    return np.array([kappa * mu, kappa, eta3, nu + 2 + p])
+    
+    result = np.empty(4, dtype=object)
+    result[0] = kappa * mu
+    result[1] = kappa
+    result[2] = eta3
+    result[3] = nu + 2 + p
+    
+    return result
 
 
 def NIW_mf_moment_pars(G, e1, e2, e3, e4):
@@ -67,7 +90,15 @@ def NIW_meanfield(G, data, weights):
     D = len(G.mu_0)
     mu_mf, sigma_mf, kappa_mf, nu_mf = \
         G._posterior_hypparams(*G._get_weighted_statistics(data,weights,D))
-    return np.array([mu_mf, sigma_mf, kappa_mf, nu_mf])
+        
+    result = np.empty(4, dtype=object)
+    result[0] = mu_mf
+    result[1] = sigma_mf
+    result[2] = kappa_mf
+    result[3] = nu_mf
+    
+    return result
+    #return np.array([mu_mf, sigma_mf, kappa_mf, nu_mf])
 
 
 def NIW_suffstats(G, data, weights):
@@ -79,8 +110,16 @@ def NIW_suffstats(G, data, weights):
     S = data.T.dot(tmp)
     xbar = np.sum(tmp, axis=0)
     neff = weights.sum()
-
-    return np.array([xbar, neff, S, neff])
+    
+    
+    result = np.empty(4, dtype=object)
+    result[0] = xbar
+    result[1] = neff
+    result[2] = S
+    result[3] = neff
+    
+    return result
+    #return list([xbar, neff, S, neff])
 
 
 def KL_gaussian(mu0, sig0, mu1, sig1):

@@ -73,7 +73,7 @@ def test_hmmbatchsgd(maxit=200, epsilon=10**(-8), batch_size=256):
     sts_true = seq_hsmm # true states 
     # hamming distance
     ##print(prior_emit[0].mu_mf)
-    ##print('Hamming Distance = ', hmm.hamming_dist(hmm.var_x, sts_true)[0]) 
+    print('Hamming Distance = ', hsmm.hamming_dist(hsmm.var_x, sts_true)[0]) 
 
     # plot learned emissions over observations
 

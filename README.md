@@ -17,6 +17,18 @@ Contents
 
 `hmmbatchsgd.py` : Batch stochastic variational inference via coordinate ascent.
 
+`hmmsgd_metaobs.py` : SVI with batches of meta-observations. A meta-observation is a group of consecutive observations. We then form minibatches from these. The natural gradient for the global variables is computed for all observations in a meta-observation, and then those are averaged over all meta-observations in the minibatch.
+
+### HSMM Classes
+
+`hsmmbase.py` 
+
+`hsmmbatchcd.py` 
+
+`hsmmbatchsgd.py` 
+
+`hsmmsgd_metaobs.py` 
+
 ### Utilities
 
 `util.py` : Miscellaneous files for HMM Classes and Test Classes.

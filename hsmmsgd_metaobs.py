@@ -1192,6 +1192,7 @@ class VBHSMM(VariationalHSMMBase):
 
         # Convert results back to moment params
         self.var_A = nats_new + 1.
+        np.fill_diagonal(self.var_A,0)
 
         # Emission distributions
         bfact = (T-2*L-1) / ((2.*L+1.)*S)

@@ -11,6 +11,8 @@ Contents
 
 ### HMM Classes
 
+Original classes implementing VI/SVI on a HMM data (in Python 3, with slight modifications from the original code)
+
 `hmmbase.py` : Abstract base class for finite variational HMMs.
 
 `hmmbatchcd.py` : Batch variational inference via coordinate ascent.
@@ -20,6 +22,8 @@ Contents
 `hmmsgd_metaobs.py` : SVI with batches of meta-observations. A meta-observation is a group of consecutive observations. We then form minibatches from these. The natural gradient for the global variables is computed for all observations in a meta-observation, and then those are averaged over all meta-observations in the minibatch.
 
 ### HSMM Classes
+
+New classes implementing VI/SVI on a HSMM data (in Python 3) utilizing matrix expansion method mentioned above. The files correspond to their equivalents in HMM setting.
 
 `hsmmbase.py` 
 
@@ -33,15 +37,29 @@ Contents
 
 `util.py` : Miscellaneous files for HMM Classes and Test Classes.
 
+`matrix_expansion.py` : Expansion Matrix function implementation
+
+`generate_data.py` : Synthetic data generator 
+
 ### Testing 
 
-`test_hmmbatchcd.py` : Testing function and plotting approximations.
+Testing function and plotting approximations.
 
-`test_hmmbatchsgd.py` : Testing function and plotting approximations.
+`test_hmmbatchcd.py` : HMM VI
+
+`test_hmmbatchsgd.py` : HMM SVI
+
+`test_hsmmbatchcd.py` : HSMM VI
+
+`test_hsmmbatchsgd.py` : HSMM SVI
 
 ### Experiments and Results
 
-`experiments.ipynb` : Unified results presentation.
+Results presented in Variational Inference for Hidden Semi-Markov Models Thesis project DSM 2023 at BSE.
+
+`hmm_plots.ipynb`: Unified HMM results presentation.
+
+`hsmm_plots.ipynb` : Unified HSMM results presentation.
 
 Authors
 --------
